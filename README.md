@@ -1,7 +1,9 @@
 # Submission 2 : MLOps - Sentiment Analysis
 
-Nama: Wendi Kardian \n
+Nama: Wendi Kardian
+
 Username Dicoding: wendie13
+
 
 | Deskripsi | |
 |--|--|
