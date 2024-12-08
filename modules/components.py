@@ -29,15 +29,16 @@ def init_components(
     serving_model_dir,
 ):
     """
-    Initializes TFX components required for building a pipeline for training and deploying a model.
+    Initializes and configures TFX components for building a pipeline
+    to train and deploy a machine learning model.
 
     Args:
-        data_dir (str): The directory containing the input data.
-        transform_module (str): The path to the module containing the transformation logic.
-        training_module (str): The path to the module containing the training logic.
-        training_steps (int): The number of training steps.
-        eval_steps (int): The number of evaluation steps.
-        serving_model_dir (str): The directory where the trained model will be exported for serving.
+        data_dir (str): Path to the directory containing input data for the pipeline.
+        transform_module (str): Path to the Python module implementing data transformation logic.
+        training_module (str): Path to the Python module defining the model training logic.
+        training_steps (int): Number of steps to execute during model training.
+        eval_steps (int): Number of steps to execute during model evaluation.
+        serving_model_dir (str): Path to the directory where the trained model will be exported for deployment.
     """
 
     output = example_gen_pb2.Output(
@@ -104,16 +105,16 @@ def init_components(
                 tfma.MetricConfig(class_name='FalseNegatives'),
                 tfma.MetricConfig(class_name='TrueNegatives'),
                 tfma.MetricConfig(class_name='BinaryAccuracy',
-                    threshold=tfma.MetricThreshold(
-                        value_threshold=tfma.GenericValueThreshold(
-                            lower_bound={'value': 0.5}
-                        ),
-                        change_threshold=tfma.GenericChangeThreshold(
-                            direction=tfma.MetricDirection.HIGHER_IS_BETTER,
-                            absolute={'value': 0.0001}
-                        )
-                    )
-                )
+                                  threshold=tfma.MetricThreshold(
+                                      value_threshold=tfma.GenericValueThreshold(
+                                          lower_bound={'value': 0.5}
+                                      ),
+                                      change_threshold=tfma.GenericChangeThreshold(
+                                          direction=tfma.MetricDirection.HIGHER_IS_BETTER,
+                                          absolute={'value': 0.0001}
+                                      )
+                                  )
+                                  )
             ])
         ]
     )

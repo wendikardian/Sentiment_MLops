@@ -1,12 +1,13 @@
 
 """
-This module contains functions for transforming restaurant reviews data.
+Process of transforming sentiment data.
 """
 
 import tensorflow as tf
 
 LABEL_KEY_NEW = "label"
 FEATURE_KEY_NEW = "tweet"
+
 
 def transformed_name(key):
     """
@@ -20,6 +21,7 @@ def transformed_name(key):
     """
     return key + "_xf"
 
+
 def preprocessing_fn(inputs):
     """
     Preprocess input data.
@@ -32,6 +34,8 @@ def preprocessing_fn(inputs):
     """
     outputs = {}
     print(inputs[FEATURE_KEY_NEW])
-    outputs[transformed_name(LABEL_KEY_NEW)] = tf.cast(inputs[LABEL_KEY_NEW], tf.int64)
-    outputs[transformed_name(FEATURE_KEY_NEW)] = tf.strings.lower(inputs[FEATURE_KEY_NEW])
+    outputs[transformed_name(LABEL_KEY_NEW)] = tf.cast(
+        inputs[LABEL_KEY_NEW], tf.int64)
+    outputs[transformed_name(FEATURE_KEY_NEW)] = tf.strings.lower(
+        inputs[FEATURE_KEY_NEW])
     return outputs

@@ -24,11 +24,14 @@ early_stopping_callback = EarlyStopping(
     baseline=0.85  # Stop training once the accuracy reaches 85%
 )
 
+
 def transformed_name(key):
     return f"{key}_xf"
 
+
 def gzip_reader_fn(filenames):
     return tf.data.TFRecordDataset(filenames, compression_type="GZIP")
+
 
 def input_fn(file_pattern, tf_transform_output, num_epochs, batch_size=64):
     transform_feature_spec = (
@@ -45,6 +48,7 @@ def input_fn(file_pattern, tf_transform_output, num_epochs, batch_size=64):
     )
 
     return dataset
+
 
 def model_builder(hp, vectorizer_layer):
     num_hidden_layers = hp.Choice(
@@ -89,6 +93,7 @@ def model_builder(hp, vectorizer_layer):
     )
 
     return model
+
 
 def tuner_fn(fn_args: FnArgs):
     tf_transform_output = tft.TFTransformOutput(fn_args.transform_graph_path)

@@ -1,6 +1,6 @@
 
 """
-This module contains functions for training a stress model using TensorFlow and TensorFlow Transform.
+This module contains functions for training a sentiment analysis model using TensorFlow and TensorFlow Transform.
 """
 
 import os
@@ -12,9 +12,11 @@ from tfx.components.trainer.fn_args_utils import FnArgs
 # Define constants
 LABEL_KEY = "label"
 FEATURE_KEY = "tweet"
-EMBEDDING_DIM = 16
+EMBEDDING_DIM = 32
 
 # Function to rename transformed features
+
+
 def transformed_name(key):
     """
     Transform the given key.
@@ -28,10 +30,14 @@ def transformed_name(key):
     return key + "_xf"
 
 # Function to read data from compressed TFRecord files
+
+
 def gzip_reader_fn(filenames):
     return tf.data.TFRecordDataset(filenames, compression_type='GZIP')
 
 # Input function to create transformed features and batch data
+
+
 def input_fn(file_pattern, tf_transform_output, num_epochs, batch_size=64):
     """
     Create input function for training data.
@@ -56,6 +62,7 @@ def input_fn(file_pattern, tf_transform_output, num_epochs, batch_size=64):
     )
     return dataset
 
+
 # Text vectorization layer for tokenization and data standardization
 vectorize_layer = layers.TextVectorization(
     standardize="lower_and_strip_punctuation",
@@ -65,6 +72,8 @@ vectorize_layer = layers.TextVectorization(
 )
 
 # Function to build the machine learning model
+
+
 def model_builder():
     """
     Build the machine learning model.
@@ -72,7 +81,12 @@ def model_builder():
     Returns:
         tf.keras.Model: Compiled Keras model.
     """
-    inputs = tf.keras.Input(shape=(1,), name=transformed_name(FEATURE_KEY), dtype=tf.string)
+    inputs = tf.keras.Input(
+        shape=(
+            1,
+        ),
+        name=transformed_name(FEATURE_KEY),
+        dtype=tf.string)
     reshaped_input = tf.reshape(inputs, [-1])
     x = vectorize_layer(reshaped_input)
     x = layers.Embedding(10000, EMBEDDING_DIM, name="embedding")(x)
@@ -93,6 +107,8 @@ def model_builder():
     return model
 
 # Function to preprocess raw request data for deployment
+
+
 def _get_serve_tf_examples_fn(model, tf_transform_output):
     """
     Get serving function for TensorFlow Serving.
@@ -110,13 +126,16 @@ def _get_serve_tf_examples_fn(model, tf_transform_output):
     def serve_tf_examples_fn(serialized_tf_examples):
         feature_spec = tf_transform_output.raw_feature_spec()
         feature_spec.pop(LABEL_KEY)
-        parsed_features = tf.io.parse_example(serialized_tf_examples, feature_spec)
+        parsed_features = tf.io.parse_example(
+            serialized_tf_examples, feature_spec)
         transformed_features = model.tft_layer(parsed_features)
         return model(transformed_features)
 
     return serve_tf_examples_fn
 
 # Function to run the training process
+
+
 def run_fn(fn_args: FnArgs) -> None:
     """
     Run the training process.
@@ -134,16 +153,18 @@ def run_fn(fn_args: FnArgs) -> None:
         monitor='val_binary_accuracy', mode='max', verbose=1, patience=10
     )
     mc = tf.keras.callbacks.ModelCheckpoint(
-        fn_args.serving_model_dir, monitor='val_binary_accuracy', mode='max', verbose=1, save_best_only=True
-    )
+        fn_args.serving_model_dir,
+        monitor='val_binary_accuracy',
+        mode='max',
+        verbose=1,
+        save_best_only=True)
 
     tf_transform_output = tft.TFTransformOutput(fn_args.transform_graph_path)
 
     train_set = input_fn(fn_args.train_files, tf_transform_output, 10)
     val_set = input_fn(fn_args.eval_files, tf_transform_output, 10)
-    vectorize_layer.adapt(
-        [j[0].numpy()[0] for j in [i[0][transformed_name(FEATURE_KEY)] for i in list(train_set)]]
-    )
+    vectorize_layer.adapt([j[0].numpy()[0] for j in [
+        i[0][transformed_name(FEATURE_KEY)] for i in list(train_set)]])
 
     model = model_builder()
 
@@ -157,13 +178,14 @@ def run_fn(fn_args: FnArgs) -> None:
     )
 
     signatures = {
-        'serving_default':
-        _get_serve_tf_examples_fn(model, tf_transform_output).get_concrete_function(
+        'serving_default': _get_serve_tf_examples_fn(
+            model,
+            tf_transform_output).get_concrete_function(
             tf.TensorSpec(
                 shape=[None],
                 dtype=tf.string,
-                name='examples'
-            )
-        )
-    }
-    model.save(fn_args.serving_model_dir, save_format='tf', signatures=signatures)
+                name='examples'))}
+    model.save(
+        fn_args.serving_model_dir,
+        save_format='tf',
+        signatures=signatures)
