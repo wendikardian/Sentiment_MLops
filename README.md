@@ -14,5 +14,6 @@ Username Dicoding: wendie13
 | Performa Model | Model yang dikembangkan menunjukkan performa yang sangat baik dalam memprediksi sentimen dari teks berita yang diinputkan, dengan keakuratan mencapai 93% pada data pelatihan dan validasi. Hasil ini menunjukkan kemampuan model dalam memahami dan mengklasifikasikan sentimen dalam teks berita dengan akurasi tinggi. |
 | Opsi Deployment | Deployment menggunakan Cloud Run di GCP dengan alokasi CPU selama pemrosesan permintaan dan peningkatan CPU saat startup. Konfigurasi: maksimum 80 permintaan bersamaan, timeout 300 detik, maksimum 100 instance dengan auto-scaling. Menggunakan Docker image  CPU 1 core dan memori 512MiB per instance. |
 | Web App | [Web App](https://sentiment-546041470502.asia-southeast2.run.app/v1/models/sentiment/metadata) |
-| Monitoring | [Prometheus](https://monitoring-546041470502.asia-southeast2.run.app/) [Grafana](http://34.128.78.227:3000/)
+| Monitoring |
 Dashboard monitoring MLOps ini menampilkan beberapa metrik untuk memantau latensi permintaan pada model machine learning. Grafik menunjukkan bahwa latensi tetap stabil sepanjang waktu yang dipantau, tanpa adanya lonjakan yang signifikan. Ini mengindikasikan bahwa model beroperasi dengan performa yang konsisten dan responsif. |
+|Link monitoring | [Prometheus](https://monitoring-546041470502.asia-southeast2.run.app/) [Grafana](http://34.128.78.227:3000/) |
