@@ -116,15 +116,23 @@ def tuner_fn(fn_args: FnArgs):
     )
     vectorizer_layer.adapt(vectorizer_dataset)
 
-    tuner = kt.Hyperband(
-        hypermodel=lambda hp: model_builder(hp, vectorizer_layer),
-        objective=kt.Objective('binary_accuracy', direction='max'),
-        max_epochs=NUM_EPOCHS,
-        factor=3,
-        directory=fn_args.working_dir,
-        project_name="kt_hyperband",
-    )
+    def wrapped_model_builder(hp):
+        # Wrap the `model_builder` to include `vectorizer_layer`
+        return model_builder(hp, vectorizer_layer)
 
+    hp = kt.HyperParameters()
+    hp.Choice('learning_rate', [1e-1, 1e-3])
+    hp.Int('num_layers', 1, 5)
+
+    tuner = kt.RandomSearch(
+        wrapped_model_builder,  # Use the wrapper function
+        max_trials=NUM_EPOCHS,
+        hyperparameters=hp,
+        allow_new_entries=True,
+        objective='val_accuracy',
+        directory=fn_args.working_dir,
+        project_name='test'
+    )
     return TunerFnResult(
         tuner=tuner,
         fit_kwargs={

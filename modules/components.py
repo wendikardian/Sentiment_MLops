@@ -9,7 +9,8 @@ from tfx.components import (
     Transform,
     Trainer,
     Evaluator,
-    Pusher
+    Pusher,
+    Tuner
 )
 from tfx.proto import example_gen_pb2, trainer_pb2, pusher_pb2
 from tfx.types import Channel
@@ -94,7 +95,7 @@ def init_components(
     ).with_id('Latest_blessed_model_resolver')
 
     eval_config = tfma.EvalConfig(
-        model_specs=[tfma.ModelSpec(label_key='Liked')],
+        model_specs=[tfma.ModelSpec(label_key='label')],
         slicing_specs=[tfma.SlicingSpec()],
         metrics_specs=[
             tfma.MetricsSpec(metrics=[
@@ -135,6 +136,18 @@ def init_components(
             )
         ),
     )
+    tuner = Tuner(
+        module_file=os.path.abspath("modules/tuner.py"),
+        examples=transform.outputs["transformed_examples"],
+        transform_graph=transform.outputs["transform_graph"],
+        schema=schema_gen.outputs["schema"],
+        train_args=trainer_pb2.TrainArgs(
+            splits=["train"],
+            num_steps=training_steps),
+        eval_args=trainer_pb2.EvalArgs(
+            splits=["eval"],
+            num_steps=eval_steps),
+    )
 
     components = (
         example_gen,
@@ -142,6 +155,7 @@ def init_components(
         schema_gen,
         example_validator,
         transform,
+        tuner,
         trainer,
         model_resolver,
         evaluator,
